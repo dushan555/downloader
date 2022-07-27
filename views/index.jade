@@ -1,0 +1,15 @@
+extends layout
+block content
+  div.margin30
+    h1.center= title
+    br
+    div.center
+      form(action='' target='hideIframe')
+        input(class='input' style='width:80%;height:45px' type='text' name='input' placeholder='输入地址' value='')
+        input(style='width:80px;height:45px' type='submit' value='开始下载' onclick="var _v=$('.input').val();if(_v){window.confirm('确认下载'+_v);}else{alert('地址没有输入！');return false;}")
+        br
+        div.downloading.nowrap
+          div.filename.nowrap-item
+            process.process.nowrap-item(style='width:80%' value='0' max='100')
+            div.process-text.nowrap-item
+      iframe(name='hideIframe' frameborder='0' style='width:100%;height:0px')
