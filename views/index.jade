@@ -6,7 +6,8 @@ block content
     div.center
       form(action='' target='hideIframe')
         input(class='input' style='width:80%;height:45px' type='text' name='input' placeholder='输入地址' value='')
-        input(style='width:80px;height:45px' type='submit' value='开始下载' onclick="var _v=$('.input').val();if(_v){window.confirm('确认下载'+_v);}else{alert('地址没有输入！');return false;}")
+        -var _cli = "var _v=$('.input').val();if(_v){if(window.confirm('确认下载'+_v)){$('.downloading').show();}}else{alert('地址没有输入！');return false;}";
+        input(style='width:80px;height:45px' type='submit' value='开始下载' onclick='#{_cli}')
         br
         div.downloading.nowrap
           div.filename.nowrap-item

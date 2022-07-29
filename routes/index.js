@@ -64,7 +64,8 @@ router.get('/', function(req, res, next) {
     var path = 'download/'+filename
     downloadFile(input, path)
   }
-  res.render('index', { title: 'Downloader'});
+  input='abc'
+  res.render('index', { title: 'Downloader', data:input});
 });
 
 module.exports = router;
