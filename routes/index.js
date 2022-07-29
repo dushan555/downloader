@@ -1,10 +1,43 @@
 var express = require('express');
 const fs = require("fs");
 const request = require('request')
+const cheerio = require('cheerio')
 var router = express.Router();
 
-function downloadFile(file_url , targetPath){
-  var dir = targetPath.substring(0,targetPath.lastIndexOf('/'))
+function getTargetName(url){
+  var firstIndex = url.indexOf('.')
+  url = url.substring(firstIndex)
+  firstIndex = url.indexOf('/')
+  url = url.substring(firstIndex)
+  var lastIndex = url.lastIndexOf('.')
+  if(lastIndex<0){
+    return ''
+  }
+  var url1 = url.substring(0,lastIndex)
+  var url2 = url.substring(lastIndex+1)
+  lastIndex = url1.lastIndexOf('/')
+  var name = url1.substring(lastIndex+1)
+  firstIndex = url2.indexOf('/')
+  var ext = ''
+  if(firstIndex<0){
+    ext = url2
+  }else{
+    ext = url2.substring(0,firstIndex)
+  }
+  return name +'.'+ ext
+}
+function findData(url){
+  request({
+    method: 'GET', uri: url, headers: {'Referer':url,}
+  }, function (err,res,body){
+    var $ = cheerio.load(body)
+    var src = $('video').attr('src')
+    console.log('src '+src)
+  });
+  
+}
+function downloadFile(file_url){
+  var dir = 'download'
   checkDirectory(dir, function (){
     try {
       var received_bytes = 0;
@@ -13,7 +46,8 @@ function downloadFile(file_url , targetPath){
       var req = request({
         method: 'GET', uri: file_url
       });
-
+      console.log('url '+file_url)
+      var targetPath = dir+'/'+ getTargetName(file_url)
       var out = fs.createWriteStream(targetPath);
       req.pipe(out);
 
@@ -43,6 +77,7 @@ function showProgress(received, total){
 }
 function checkDirectory(dir,onFinish)
 {
+  console.log('checkDir '+dir)
   fs.stat(dir, function (err, stats){
     if(err){
       fs.mkdir(dir, ()=>{onFinish()})
@@ -56,13 +91,16 @@ router.get('/', function(req, res, next) {
   var input = req.query.input
   if(input && input!=''){
     input = input.toString()
-    let filename = input;
-    let lastIndex = input.lastIndexOf('/');
-    if(lastIndex > 0 ){
-      filename = input.substring(lastIndex+1)
+    var filename = getTargetName(input)
+    if(filename){
+      console.log(filename)
+      downloadFile(input)
+    }else{
+      //解析html
+      console.log('未找到可以下载的文件')
+      findData(input)
     }
-    var path = 'download/'+filename
-    downloadFile(input, path)
+    //downloadFile(input)
   }
   input='abc'
   res.render('index', { title: 'Downloader', data:input});
