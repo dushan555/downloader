@@ -4,13 +4,27 @@ block content
     h1.center= title
     br
     div.center
-      form(action='' target='hideIframe')
-        input(class='input' style='width:80%;height:45px' type='text' name='input' placeholder='输入地址' value='')
-        -var _cli = "var _v=$('.input').val();if(_v){if(window.confirm('确认下载'+_v)){$('.downloading').show();}}else{alert('地址没有输入！');return false;}";
-        input(style='width:80px;height:45px' type='submit' value='开始下载' onclick='#{_cli}')
-        br
-        div.downloading.nowrap
-          div.filename.nowrap-item
-            process.process.nowrap-item(style='width:80%' value='0' max='100')
-            div.process-text.nowrap-item
-      iframe(name='hideIframe' frameborder='0' style='width:100%;height:0px')
+      input(class='input' type='search' name='input' placeholder='输入地址' value='')
+      button(class='submit' onclick='onClick()') 开始下载
+      script
+        |function onClick(){
+        | var _v=$('.input').val()
+        | if(_v){
+        |   $.post("/download",{
+        |            url:_v
+        |        },
+        |        function(data,status){
+        |            if(status == 'success'){
+        |               if(data.code == 1){
+        |                 $('.downloading').show();$('.filename').html(data.msg);
+        |                 $('.progress').val('10');$('.progress-text').html('10%')
+        |               }else{alert(data.msg)}
+        |            }else{alert(status)}
+        |        });
+        | }else{alert('先输入下载地址!')}
+        |}
+    br
+    div.downloading.nowrap.margin30.center
+      div.filename.nowrap-item
+      progress.progress.nowrap-item(value='0' max='100')
+      div.progress-text.nowrap-item
