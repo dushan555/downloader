@@ -46,7 +46,7 @@ li
 }
 
 .input{
-  width: 80%;
+  width: 60%;
   height: 45px;
   border: 0;
   border-radius: 5px;
@@ -64,14 +64,13 @@ li
   height: 45px;
   border: 0;
   border-radius: 5px;
-  margin-left: 15px;
-  margin-right: 15px;
+  margin: 15px;
 }
 .downloading{
-  display: none;
+  /*display: none;*/
 }
 .progress{
-  width: 80%;
+  width: 50%;
   margin-left: 15px;
   margin-right: 15px;
 }
