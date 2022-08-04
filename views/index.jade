@@ -16,11 +16,12 @@ block content
         |        function(data,status){
         |            if(status == 'success'){
         |               if(data.code == 1){
-        |                 $('.margin30').append("<div class='downloading center'>"+
+        |                 $('.margin30').append("<div class='downloading'>"+
         |                   "<div class='filename nowrap-item'>"+data.msg+"</div>"+
         |                   "<progress class='progress nowrap-item' value='10' max='100'></progress>"+
         |                   "<div class='progress-text nowrap-item'>10%</div>"+
         |                 "</div>");
+        |                 
         |               }else{alert(data.msg)}
         |            }else{alert(status)}
         |        });

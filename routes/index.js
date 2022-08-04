@@ -6,6 +6,9 @@ const chrome = require('chromedriver')
 
 var router = express.Router();
 
+var downloadID = 10000
+var downloadDict = {}
+
 function getTargetName(url){
   url = decodeURI(url)
   var firstIndex = url.indexOf('.')
@@ -56,7 +59,7 @@ function findData(url){
   });
   
 }
-function downloadFile(file_url){
+function downloadFile(filename, file_url){
   var dir = 'file'
   checkDirectory(dir, function (){
     try {
@@ -73,7 +76,7 @@ function downloadFile(file_url){
         }
       });
       console.log('url '+file_url)
-      var targetPath = dir+'/'+ getTargetName(file_url)
+      var targetPath = dir+'/'+ filename
       var out = fs.createWriteStream(targetPath);
       req.pipe(out);
 
@@ -87,7 +90,7 @@ function downloadFile(file_url){
         // Update the received bytes
         received_bytes += curr;
 
-        showProgress(received_bytes, total_bytes, curr);
+        showProgress(filename, received_bytes, total_bytes, curr);
       });
 
       req.on('end', function() {
@@ -98,9 +101,14 @@ function downloadFile(file_url){
     }
   })
 }
-function showProgress(received, total, curr){
+function showProgress(filename, received, total, curr){
   var percentage = (received * 100) / total;
-  console.log(percentage.toFixed(2) + "% | " + received + "/" + total + " "+curr);
+  var _progress = percentage.toFixed(2);
+  console.log(_progress + "% | " + received + "/" + total + " "+curr);
+  if(downloadDict[filename]){
+    downloadDict[filename]['progress'] = _progress
+    console.log(downloadDict[filename])
+  }
 }
 function checkDirectory(dir,onFinish)
 {
@@ -113,6 +121,18 @@ function checkDirectory(dir,onFinish)
     }
   })
 }
+
+function refreshHistory(name, url)
+{
+  if(downloadDict[name]){
+    return false
+  }else{
+    downloadDict[name] = {'id':downloadID, 'name':name, 'url':url,'progress':0}
+    downloadID+=1
+    return true
+  }
+}
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Downloader'});
@@ -124,9 +144,13 @@ router.post('/download', function(req, res, next) {
     console.log('url '+url)
     let filename = getTargetName(url);
     if(filename){
+      if(!refreshHistory(filename,url)){
+        res.json({'msg': '已经下载过的！', 'code': 0})
+        return
+      }
       console.log('filename '+filename)
-      res.json({'msg': '开始下载 '+filename, 'code': 1})
-      downloadFile(url)
+      res.json({'msg': filename, 'code': 1})
+      downloadFile(filename, url)
     }else{
       //解析html
       console.log('未找到可以下载的文件')
@@ -137,5 +161,12 @@ router.post('/download', function(req, res, next) {
     res.json({'msg': 'url error', 'code': 0})
   }
 });
-
+router.post('/progress', function (req, res, next){
+  let name = req.body.name;
+  if(name){
+    res.json(downloadDict[name])
+  }else{
+    res.json({'msg': 'error'})
+  }
+})
 module.exports = router;
