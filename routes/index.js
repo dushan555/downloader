@@ -145,11 +145,11 @@ router.post('/download', function(req, res, next) {
     let filename = getTargetName(url);
     if(filename){
       if(!refreshHistory(filename,url)){
-        res.json({'msg': '已经下载过的！', 'code': 0})
+        res.json({'msg': '已经下载过<'+filename+'>！', 'code': 0})
         return
       }
       console.log('filename '+filename)
-      res.json({'msg': filename, 'code': 1})
+      res.json({'msg': filename, 'code': 1, 'id': downloadID})
       downloadFile(filename, url)
     }else{
       //解析html

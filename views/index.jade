@@ -7,6 +7,15 @@ block content
       input(class='input' type='search' name='input' placeholder='输入地址' autocomplete='off' value='')
       button(class='submit' onclick='onClick()') 开始下载
       script
+        |function refreshProgress(data, p){
+        | if(p<100){
+        |   $.post("/progress",{name:data.msg},function(data2,status){
+        |     p=data2.progress
+        |     $(".progress."+data.id).val(p);$(".progress-text."+data.id).html(p+'%');
+        |     setTimeout(function(){refreshProgress(data, p)}, 200)
+        |   })
+        | }
+        |}
         |function onClick(){
         | var _v=$('.input').val()
         | if(_v){
@@ -17,11 +26,11 @@ block content
         |            if(status == 'success'){
         |               if(data.code == 1){
         |                 $('.margin30').append("<div class='downloading'>"+
-        |                   "<div class='filename nowrap-item'>"+data.msg+"</div>"+
-        |                   "<progress class='progress nowrap-item' value='10' max='100'></progress>"+
-        |                   "<div class='progress-text nowrap-item'>10%</div>"+
+        |                   "<div class='filename nowrap'>"+data.msg+"</div>"+
+        |                   "<progress class='progress "+data.id+" nowrap' value='0' max='100'></progress>"+
+        |                   "<div class='progress-text "+data.id+" nowrap'>0%</div>"+
         |                 "</div>");
-        |                 
+        |                 refreshProgress(data, 0)
         |               }else{alert(data.msg)}
         |            }else{alert(status)}
         |        });
